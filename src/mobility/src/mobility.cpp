@@ -40,9 +40,9 @@ typedef struct
 	float x;
 	float y;
 	float theta;
-	string name;
+	string rover_name;
+	float dist_rover1;
 	float dist_rover2;
-	float dist_rover3;
 }rover_pose;
 
 
@@ -379,16 +379,16 @@ void poseHandler(const std_msgs::String::ConstPtr& message)
 			if((rovers[i].dist_rover1<=2)&&(rovers[i].dist_rover2<=2)){
 				local_rover_value.x=(rovers[1].x+rovers[2].x+current_location.x)/3;
 				local_rover_value.y=(rovers[1].y+rovers[2].y+current_location.y)/3;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[1].theta)+cos(rovers[2].theta))/3,(sin(current_location.theta)+sin(rovers[1].theta)+sin(rovers[2].theta))/3);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[1].theta)+sin(rovers[2].theta))/3,(cos(current_location.theta)+cos(rovers[1].theta)+cos(rovers[2].theta))/3;
 
 			}else if(rovers[i].dist_rover1<=2){
 				local_rover_value.x=(rovers[1].x+current_location.x)/2;
 				local_rover_value.y=(rovers[1].y+current_location.y)/2;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[1].theta))/2,(sin(current_location.theta)+sin(rovers[1].theta))/2);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[1].theta))/2,(cos(current_location.theta)+cos(rovers[1].theta))/2);
 			}else if(rovers[i].dist_rover2<=2){
 				local_rover_value.x=(rovers[2].x+current_location.x)/2;
 				local_rover_value.y=(rovers[2].y+current_location.y)/2;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[2].theta))/2,(sin(current_location.theta)+sin(rovers[2].theta))/2);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[2].theta))/2,(cos(current_location.theta)+cos(rovers[2].theta))/2);
 			}
 	std::string message1 = converter2.str();		
 	local_rover_value.name="local";
@@ -402,15 +402,15 @@ void poseHandler(const std_msgs::String::ConstPtr& message)
 			if((rovers[i].dist_rover1<=2)&&(rovers[i].dist_rover2<=2)){	
 				local_rover_value.x=(rovers[0].x+rovers[2].x+current_location.x)/3;
 				local_rover_value.y=(rovers[0].y+rovers[2].y+current_location.y)/3;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[0].theta)+cos(rovers[2].theta))/3,(sin(current_location.theta)+sin(rovers[0].theta)+sin(rovers[2].theta))/3);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[0].theta)+sin(rovers[2].theta))/3,(cos(current_location.theta)+cos(rovers[0].theta)+cos(rovers[2].theta))/3);
 			}else if(rovers[i].dist_rover1<=2){
 				local_rover_value.x=(rovers[0].x+current_location.x)/2;
 				local_rover_value.y=(rovers[0].y+current_location.y)/2;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[0].theta))/2,(sin(current_location.theta)+sin(rovers[0].theta))/2);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[0].theta))/2,(cos(current_location.theta)+cos(rovers[0].theta))/2);
 			}else if(rovers[i].dist_rover2<=2){
 				local_rover_value.x=(rovers[2].x+current_location.x)/2;
 				local_rover_value.y=(rovers[2].y+current_location.y)/2;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[2].theta))/2,(sin(current_location.theta)+sin(rovers[2].theta))/2);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[2].theta))/2,(cos(current_location.theta)+cos(rovers[2].theta))/2);
 			}
 			local_rover_value.name="local";
 			converter2 << local_rover_value.name << " " << local_rover_value.x << " " << local_rover_value.y << " " << local_rover_value.theta;
@@ -424,15 +424,15 @@ void poseHandler(const std_msgs::String::ConstPtr& message)
 				local_rover_value.name="local";
 				local_rover_value.x=(rovers[1].x+rovers[0].x+current_location.x)/3;
 				local_rover_value.y=(rovers[1].y+rovers[0].y+current_location.y)/3;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[1].theta)+cos(rovers[0].theta))/3,(sin(current_location.theta)+sin(rovers[1].theta)+sin(rovers[0].theta))/3);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[1].theta)+sin(rovers[0].theta))/3,(cos(current_location.theta)+cos(rovers[1].theta)+cos(rovers[0].theta))/3);
 			}else if(rovers[i].dist_rover1<=2){
 				local_rover_value.x=(rovers[0].x+current_location.x)/2;
 				local_rover_value.y=(rovers[0].y+current_location.y)/2;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[0].theta))/2,(sin(current_location.theta)+sin(rovers[0].theta))/2);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[0].theta))/2,(cos(current_location.theta)+cos(rovers[0].theta))/2);
 			}else if(rovers[i].dist_rover2<=2){
 				local_rover_value.x=(rovers[1].x+current_location.x)/2;
 				local_rover_value.y=(rovers[1].y+current_location.y)/2;
-				local_rover_value.theta=atan2((cos(current_location.theta)+cos(rovers[1].theta))/2,(sin(current_location.theta)+sin(rovers[1].theta))/2);
+				local_rover_value.theta=atan2((sin(current_location.theta)+sin(rovers[1].theta))/2,(cos(current_location.theta)+cos(rovers[1].theta))/2);
 			}
 			local_rover_value.name="local";
 			converter2 << local_rover_value.name << " " << local_rover_value.x << " " << local_rover_value.y << " " << local_rover_value.theta;
