@@ -31,7 +31,9 @@
 #include <math.h>
 #include <vector>
 
-#define KP 0.5
+//#define KP 0.5
+#define KPL 1.8
+#define KPG 2.7
 //#define KPG 2.5
 using namespace std;
 
@@ -52,6 +54,11 @@ float kill_switch_timeout = 10;
 float angular=0;
 float global_local_heading = 0;
 float global_av_heading = 0;
+
+float global_local = 0;
+float global_average_heading = 0;
+float position_average_heading = 0;
+
 pose current_location;
 float direction_theta=0;
 float average_x=0.0;
@@ -114,6 +121,8 @@ void parse_pose_message(string msg);
 float calculate_global_average_heading();
 float calculate_local_average_heading();
 void calculate_neighbors(string rover_name);
+
+void calculate_position_average_heading();
 
 vector <pose> neighbors(6);
 vector <pose> all_rovers(6);
@@ -183,10 +192,12 @@ void mobilityStateMachine(const ros::TimerEvent &)
             case STATE_MACHINE_TRANSLATE:
             {
                 state_machine_msg.data = "TRANSLATING";//, " + converter.str();
-                float angular_velocity = KP * (direction_theta-current_location.theta );
-                float linear_velocity = 0.05;
-                //angular=KPL*(global_local_heading-current_location.theta);
-                //angular=KPG*(global_av_heading-current_location.theta);
+                float angular_velocity = position_average_heading-current_location.theta;
+
+                                //Correction for Homework 4
+                                //angular=KPL*(global_local-current_location.theta);
+                                //angular=KPG*(global_average_heading-current_location.theta);
+                                float linear_velocity = 0;
                 setVelocity(linear_velocity, angular_velocity);
                 break;
             }
@@ -225,7 +236,8 @@ void setVelocity(double linearVel, double angularVel)
     killSwitchTimer.stop();
     killSwitchTimer.start();
 
-    velocity.linear.x = linearVel * 1.3;
+    velocity.linear.x = 0;
+    //velocity.linear.x = linearVel * 1.5;
     velocity.angular.z = angularVel * 8; //scaling factor for sim; removed by aBridge node
     velocityPublish.publish(velocity);
 }
@@ -266,6 +278,27 @@ void poseHandler(const std_msgs::String::ConstPtr& message)
     lah_message.data = lah;
     globalAverageHeadingPublisher.publish(gah_message);
     localAverageHeadingPublisher.publish(lah_message);
+}
+
+void calculate_position_averaging_heading(){
+    float sum_x=0;
+    float sum_y=0;
+    float average_position_x=0;
+    float average_position_y=0;
+    float KP;
+    for (int i=0;i<neighbors.size();i++){
+        sum_x +=(neighbors[i].x-current_location.x);
+    sum_y +=(neighbors[i].y-current_location.y);
+    }
+    if (neighbors.size()==0){
+    average_position_x=current_location.x;
+    average_position_y=current_location.y;
+    }else{
+    average_position_x=current_location.x+sum_x/neighbors.size();
+    average_position_y=current_location.y+sum_y/neighbors.size();
+
+    }
+    position_average_heading=KP*atan2(average_position_y,average_position_x);
 }
 
 void obstacleHandler(const std_msgs::UInt8::ConstPtr &message)
@@ -403,18 +436,23 @@ float calculate_global_average_heading(){
     float u_x=0;
     float u_y=0;
     float global_average_heading;
-    global_av_heading= global_average_heading;
+    float local_average_heading;
+    global_average_heading =  local_average_heading;
+    //global_av_heading= global_average_heading;
     for (int i = 0; i<6; i++){
         u_x += cos(all_rovers[i].theta);
         u_y += sin(all_rovers[i].theta);
     }
-    global_av_heading = atan2(u_y,u_x);
+    global_average_heading = atan2(u_y,u_x);
+    return global_average_heading;
+ //   global_av_heading = atan2(u_y,u_x);
     return global_av_heading;
 }
 
 void calculate_neighbors(string rover_name){
     pose my_pose;
     int my_index=0;
+    int my_index;
     if(rover_name.compare("ajax") == 0){
         my_pose = all_rovers[0];
         my_index = 0;
@@ -440,6 +478,7 @@ void calculate_neighbors(string rover_name){
     }
     neighbors.clear();
     for (int i = 0; i<6; i++){
+        for (int i = 0; i<3; i++){
         if(i != my_index){
             if(hypot(my_pose.x-all_rovers[i].x, my_pose.y-all_rovers[i].y)<2){
                 neighbors.push_back(all_rovers[i]);
@@ -452,16 +491,17 @@ void calculate_neighbors(string rover_name){
     direction_theta= atan2(average_y,average_x);
 }
 
-
+}
 float calculate_local_average_heading(){
     float u_x=0;
     float u_y=0;
     float local_average_heading;
-    global_local_heading = local_average_heading;
+    //global_local_heading = local_average_heading;
+    global_local = local_average_heading;
     for (int i = 0; i<neighbors.size(); i++){
         u_x += cos(neighbors[i].theta);
         u_y += sin(neighbors[i].theta);
     }
-   global_local_heading = atan2(u_y,u_x);
-    return global_local_heading;
+    global_local = atan2(u_y,u_x);
+    return global_local;
 }
